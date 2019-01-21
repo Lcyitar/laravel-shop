@@ -54,3 +54,6 @@ if (token) {
 //     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
 //     encrypted: true
 // });
+
+//二次确认提升框
+require('sweetalert');
