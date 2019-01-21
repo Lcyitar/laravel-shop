@@ -90,6 +90,7 @@ class UsersController extends Controller
 
         // 不在页面显示 `新建` 按钮，因为我们不需要在后台新建用户
         $grid->disableCreateButton();
+        $grid->disableActions();
 
         $grid->actions(function ($actions) {
             // 不在每一行后面展示查看按钮
