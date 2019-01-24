@@ -313,6 +313,18 @@ return [
     |
     */
     'extensions' => [
+        'wang-editor' => [
+            // 如果要关掉这个扩展，设置为false
+            'enable' => true,
+            // 编辑器的配置
+            'config' => [
 
+            ]
+        ],
+
+        'material-ui' => [
+            // If the value is set to false, this extension will be disabled
+            'enable' => true
+        ]
     ],
 ];

@@ -9,8 +9,11 @@
     "license": "MIT",
     "require": {
         "php": "^7.1.3",
+        "ddeboer/transcoder": "^1.0",
         "encore/laravel-admin": "1.6.8",
         "fideloper/proxy": "^4.0",
+        "jxlwqq/material-ui": "^1.0",
+        "laravel-admin-ext/wang-editor": "^1.0",
         "laravel/framework": "5.7.*",
         "laravel/tinker": "^1.0",
         "overtrue/laravel-lang": "^3.0"
