@@ -38,7 +38,7 @@ class AppServiceProvider extends ServiceProvider
             // 调用 Yansongda\Pay 来创建一个支付宝支付对象
             return Pay::alipay($config);
         });
-        
+
         $this->app->singleton('wechat_pay', function () {
             $config = config('pay.wechat');
             if (app()->environment() !== 'production') {
