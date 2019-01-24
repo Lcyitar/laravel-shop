@@ -11,6 +11,7 @@
         "php": "^7.1.3",
         "ddeboer/transcoder": "^1.0",
         "encore/laravel-admin": "1.6.8",
+        "endroid/qr-code": "^3.5",
         "fideloper/proxy": "^4.0",
         "jxlwqq/material-ui": "^1.0",
         "laravel-admin-ext/wang-editor": "^1.0",
