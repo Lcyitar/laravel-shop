@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Exceptions\InvalidRequestException;
@@ -10,6 +11,10 @@ use Ddeboer\Transcoder\Transcoder;
 
 class ProductsController extends Controller
 {
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View|\think\response\View
+     */
     public function index(Request $request)
     {
         // 创建一个查询构造器
@@ -44,6 +49,8 @@ class ProductsController extends Controller
 
         $products = $builder->paginate(16);
 
+        //dump($products);
+
         return view('products.index', [
             'products' => $products,
             'filters'  => [
@@ -68,7 +75,19 @@ class ProductsController extends Controller
             $favored = boolval($user->favoriteProducts()->find($product->id));
         }
 
-        return view('products.show', ['product' => $product, 'favored' => $favored]);
+        $reviews = Order::query()
+            ->with(['order.user', 'productSku'])
+            ->where('product_id', $product->id)
+            ->whereNotNull('reviewed_at')
+            ->orderBy('reviewed_at', 'desc')
+            ->limit(10)
+            ->get();
+
+        return view('products.show', [
+            'product' => $product,
+            'favored' => $favored,
+            'reviews' => $reviews,
+        ]);
     }
 
     public function favor(Product $product, Request $request)
