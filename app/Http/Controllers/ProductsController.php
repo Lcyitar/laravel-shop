@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Exceptions\InvalidRequestException;
 use Ddeboer\Transcoder\Transcoder;
+use App\Models\OrderItem;
 
 
 class ProductsController extends Controller
@@ -75,7 +76,7 @@ class ProductsController extends Controller
             $favored = boolval($user->favoriteProducts()->find($product->id));
         }
 
-        $reviews = Order::query()
+        $reviews = OrderItem::query()
             ->with(['order.user', 'productSku'])
             ->where('product_id', $product->id)
             ->whereNotNull('reviewed_at')
