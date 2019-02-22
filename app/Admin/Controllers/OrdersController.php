@@ -11,7 +11,7 @@ use Encore\Admin\Layout\Content;
 use Encore\Admin\Show;
 use Illuminate\Http\Request;
 use App\Exceptions\InvalidRequestException;
-use APp\Http\Requests\ApplyRefundRequest;
+use App\Http\Requests\Admin\HandleRefundRequest;
 
 class OrdersController extends Controller
 {
@@ -207,28 +207,31 @@ class OrdersController extends Controller
         return redirect()->back();
     }
 
-    public function applyRefund(Order $order, ApplyRefundRequest $request)
+    /**
+     * @param Order $order
+     * @param HandleRefundRequest $request
+     * @return Order
+     * @throws InvalidRequestException
+     */
+    public function handleRefund(Order $order, HandleRefundRequest $request)
     {
-        //检验是否是自己的订单
-        $this->authorize('own', $order);
-        //判断订单是否付款
-        if (!$order->paid_at) {
-            throw new InvalidRequestException('该订单未支付，不可退款');
+        //判断订单状态是否正确
+        if ($order->refund_status !== Order::REFUND_STATUS_APPLIED) {
+            throw new InvalidRequestException('订单状态不正确');
         }
-        // 判断订单退款状态是否正确
-        if ($order->refund_status !== Order::REFUND_STATUS_PENDING) {
-            throw new InvalidRequestException('该订单已经申请过退款，请勿重复申请');
-        }
-        // 将用户输入的退款理由放到订单的 extra 字段中
-        $extra                  = $order->extra ?: [];
-        $extra['refund_reason'] = $request->input('reason');
-        // 将订单退款状态改为已申请退款
-        $order->update([
-            'refund_status' => Order::REFUND_STATUS_APPLIED,
-            'extra'         => $extra,
-        ]);
+        //是否同意退款
+        if ($request->input('agree')) {
 
+        } else {
+            //将退款理由放到订单的 extra 字段中
+            $extar = $order->extra ?: [];
+            $extar['refund_disagree_reason'] = $request->input('reason');
+            //将订单的退款状态改为未退款
+            $order->update([
+               'refund_status' => Order::REFUND_STATUS_PENDING,
+               'extra' => $extar,
+            ]);
+        }
         return $order;
     }
-
 }
