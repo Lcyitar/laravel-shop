@@ -9,7 +9,7 @@ class Category extends Model
 {
     protected $fillable = ['name', 'is_directory', 'level', 'path'];
     protected $casts =[
-      'is_directory' => 'boolean',
+        'is_directory' => 'boolean',
     ];
 
     protected static function boot()
