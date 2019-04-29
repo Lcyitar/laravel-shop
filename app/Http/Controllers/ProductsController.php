@@ -9,7 +9,7 @@ use App\Exceptions\InvalidRequestException;
 use Ddeboer\Transcoder\Transcoder;
 use App\Models\OrderItem;
 use App\Models\Category;
-
+use App\Services\CategoryService;
 
 class ProductsController extends Controller
 {
