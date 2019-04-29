@@ -3,29 +3,18 @@
 namespace App\Admin\Controllers;
 
 use App\Models\Product;
-use App\Http\Controllers\Controller;
-use Encore\Admin\Controllers\HasResourceActions;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Layout\Content;
 use Encore\Admin\Show;
 use App\Models\Category;
 
-class ProductsController extends Controller
+class ProductsController extends CommonProductsController
 {
-    use HasResourceActions;
-
-    /**
-     * Index interface.
-     *
-     * @param Content $content
-     * @return Content
-     */
-    public function index(Content $content)
+    // 移除 HasResourceActions
+    public function getProductType()
     {
-        return $content
-            ->header('商品列表')
-            ->body($this->grid());
+        return Product::TYPE_NORMAL;
     }
 
     /**
@@ -40,33 +29,6 @@ class ProductsController extends Controller
         return $content
             ->header('商品详情')
             ->body($this->detail($id));
-    }
-
-    /**
-     * Edit interface.
-     *
-     * @param mixed $id
-     * @param Content $content
-     * @return Content
-     */
-    public function edit($id, Content $content)
-    {
-        return $content
-            ->header('编辑商品')
-            ->body($this->form()->edit($id));
-    }
-
-    /**
-     * Create interface.
-     *
-     * @param Content $content
-     * @return Content
-     */
-    public function create(Content $content)
-    {
-        return $content
-            ->header('创建商品')
-            ->body($this->form());
     }
 
     /**
