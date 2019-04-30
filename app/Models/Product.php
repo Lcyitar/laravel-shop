@@ -84,7 +84,10 @@ class Product extends Model
         });
         // 只去除需要的商品属性字段
         $arr['properties'] = $this->properties->map(function (ProductProperty $property) {
-           return array_only($property->toArray(), ['value', 'name']);
+           return array_merge(
+               array_only($property->toArray(), ['value', 'name']),
+               ['search_value' => $property->name.':'.$property->value]
+               );
         });
 
         return $arr;
