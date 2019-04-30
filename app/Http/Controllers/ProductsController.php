@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Exceptions\InvalidRequestException;
 use Ddeboer\Transcoder\Transcoder;
 use App\Models\OrderItem;
+use Illuminate\Pagination\LengthAwarePaginator;
 use App\Models\Category;
-use App\Services\CategoryService;
 
 class ProductsController extends Controller
 {
@@ -19,6 +18,84 @@ class ProductsController extends Controller
      */
     public function index(Request $request)
     {
+        $page = $request->input('page', 1);
+        $perPage = 16;
+
+        // 构建查询
+        $params = [
+            'index' => 'products',
+            'type'  => '_doc',
+            'body'  => [
+                'from'  => ($page - 1) * $perPage, // 通过当前页数与每页数量计算偏移值
+                'size'  => $perPage,
+                'query' => [
+                    'bool' => [
+                        'filter' => [
+                            ['term' => ['on_sale' => true]],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        if ($order = $request->input('order', '')) {
+            if (preg_match('/^(.+)_(asc|desc)$/', $order, $m)) {
+                if (in_array($m[1], ['price', 'sold_count', 'rating'])) {
+                    $params['body']['sort'] = [$m[1] => $m[2]];
+                }
+            }
+        }
+
+        if ($search = $request->input('search', '')) {
+            $params['body']['query']['bool']['must'] = [
+                [
+                    'multi_match' => [
+                        'query'  => $search,
+                        'fields' => [
+                            'title^3',
+                            'long_title^2',
+                            'category^2', // 类目名称
+                            'description',
+                            'skus_title',
+                            'skus_description',
+                            'properties_value',
+                        ],
+                    ],
+                ]
+            ];
+        }
+
+        if ($request->input('category_id') && $category = Category::find($request->input('category_id'))) {
+            if ($category->is_directory) {
+                // 如果是一个父类目，则使用 category_path 来筛选
+                $params['body']['query']['bool']['filter'][] = [
+                    'prefix' => ['category_path' => $category->path.$category->id.'-'],
+                ];
+            } else {
+                // 否则直接通过 category_id 筛选
+                $params['body']['query']['bool']['filter'][] = [
+                    'term' => ['category_id' => $category->id]
+                ];
+            }
+        }
+
+        $result = app('es')->search($params);
+        $productIds = collect($result['hits']['hits'])->pluck('_id')->all();
+
+        $products = Product::query()
+            ->whereIn('id', $productIds)
+            ->orderByRaw(sprintf("FIND_IN_SET(id, '%s')", join(',', $productIds)))
+            ->get();
+
+        $pager = new LengthAwarePaginator(
+            $products,
+            $result['hits']['total'],
+            $perPage,
+            $page,
+            ['path' => route('products.index', false)]
+        );
+
+        /*
         // 创建一个查询构造器
         $builder = Product::query()->where('on_sale', true);
         // 判断是否有提交 search 参数，如果有就赋值给 $search 变量
@@ -51,6 +128,7 @@ class ProductsController extends Controller
             }
         }
 
+
         // 是否有提交 order 参数，如果有就赋值给 $order 变量
         // order 参数用来控制商品的排序规则
         if ($order = $request->input('order', '')) {
@@ -65,9 +143,12 @@ class ProductsController extends Controller
         }
 
         $products = $builder->paginate(16);
+        */
+
+
 
         return view('products.index', [
-            'products' => $products,
+            'products' => $pager,
             'category' => $category ?? null,
             'filters'  => [
                 'search' => $search,
