@@ -75,6 +75,7 @@ class ProductsController extends Controller
                 // 将字符串用符号 : 拆分成两部分并且分别赋值给 $name 和 $value 两个变量
                 list($name, $value) = explode(':', $filter);
 
+                /*
                 // 添加到 filter 类型中
                 $params['body']['query']['bool']['filter'][] = [
                     // 由于我们要筛选的是 nested 类型下的属性，因此需要用 nested 查询
@@ -87,6 +88,7 @@ class ProductsController extends Controller
                         ],
                     ],
                 ];
+                */
             }
         }
 
