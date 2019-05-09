@@ -237,7 +237,7 @@ class ProductsController extends Controller
                 }
             }
         }
-
+        //git stash
         $products = $builder->paginate(16);
         */
 
